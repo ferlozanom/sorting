@@ -17,7 +17,7 @@ def cmp_standard(a,b):
     '''
     if a<b:
         return -1
-    if b<a:
+    if a>b:
         return 1
     return 0
 
@@ -28,7 +28,7 @@ def cmp_reverse(a,b):
     '''
     if a<b:
         return 1
-    if b<a:
+    if a>b:
         return -1
     return 0
 
@@ -40,13 +40,43 @@ def cmp_last_digit(a,b):
     return cmp_standard(a%10,b%10)
 
 
-def _merged(xs, ys, cmp=cmp_standard):
+def _merged(left, right, cmp=cmp_standard):
     '''
     Assumes that both xs and ys are sorted,
     and returns a new list containing the elements of both xs and ys.
     Runs in linear time.
     '''
 
+    if len(left) == 0:
+        return right
+    elif len(right) == 0:
+        return left
+
+    l= r = 0
+    k=0
+
+    xs = left + right
+
+    while l < len(left) and r < len(right):
+        if cmp(left[l],right[r]) == -1:
+            xs[k]=left[l]
+            l+=1
+        else:
+            xs[k]=right[r]
+            r+=1
+        k+=1
+
+    while l < len(left):
+        xs[k]=left[l]
+        l+=1
+        k+=1
+
+    while r < len(right):
+        xs[k]=right[r]
+        r+=1
+        k+=1
+
+    return xs
 
 def merge_sorted(xs, cmp=cmp_standard):
     '''
@@ -63,7 +93,14 @@ def merge_sorted(xs, cmp=cmp_standard):
 
     You should return a sorted version of the input list xs
     '''
-
+    
+    if len(xs) <= 1:
+        return xs
+    else:
+        mid = len(xs)//2
+        left = xs[:mid]
+        right = xs[mid:]
+        return _merged(merge_sorted(left,cmp),merge_sorted(right,cmp),cmp)
 
 def quick_sorted(xs, cmp=cmp_standard):
     '''
@@ -86,7 +123,14 @@ def quick_sorted(xs, cmp=cmp_standard):
 
     You should return a sorted version of the input list xs
     '''
-
+    if len(xs) <= 1:
+        return xs
+    else:
+        rdom = random.randrange(len(xs))
+        p = rdom
+        less_than = xs[:p]
+        more_than = xs[p:]
+        return _merged(quick_sorted(less_than,cmp),quick_sorted(more_than,cmp),cmp)
 
 def quick_sort(xs, cmp=cmp_standard):
     '''
